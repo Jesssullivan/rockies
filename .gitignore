@@ -1,3 +1,9 @@
+**/.vault-password
+**/*_venv
+**/.DS_Store
+.fleet
+**/.idea
+
 # Logs
 logs
 *.log

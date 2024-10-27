@@ -30,12 +30,12 @@
     dest: "~/minio/compose.yaml"
 - name: start container
   shell: |
-      docker-compose up -d
+      docker-compose up -d --remove-orphans
   args:
      chdir: ~/minio/
-- name: initialize buckets
-  shell: |
-    ~/minio-binaries/mc config host add harvard-minio http://localhost:9000 AKIAIOSFODNN7EXAMPLE wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-    ~/minio-binaries/mc mb harvard-minio/drobo-s3
-    ~/minio-binaries/mc policy download myminio/drobo-s3
-    ~/minio-binaries/mc cp /mnt/drobo/A myminio/drobo-s3 --recursive
+#- name: initialize buckets
+#  shell: |
+#    ~/minio-binaries/mc config host add harvard-minio http://localhost:9000 AKIAIOSFODNN7EXAMPLE wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+#    ~/minio-binaries/mc mb harvard-minio/drobo-s3
+#    ~/minio-binaries/mc policy download harvard-minio/drobo-s3
+#    ~/minio-binaries/mc cp /mnt/drobo/A harvard-minio/drobo-s3 --recursive
