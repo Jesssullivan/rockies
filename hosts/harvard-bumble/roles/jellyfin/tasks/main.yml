@@ -1,0 +1,27 @@
+---
+- name: stop container
+  shell: |
+      docker-compose stop
+  args:
+      chdir: ~/jellyfin/
+  ignore_errors: yes
+- name: remove container
+  shell: |
+      docker-compose rm
+  args:
+     chdir: ~/jellyfin/
+  ignore_errors: yes
+- name: Create jellyfin directory
+  ansible.builtin.file:
+    path: ~/jellyfin/
+    state: directory
+    mode: '0755'
+- name: copy compose file to jellyfin/compose
+  template:
+    src: compose.yaml
+    dest: "~/jellyfin/compose.yaml"
+- name: start container
+  shell: |
+      docker-compose up -d
+  args:
+     chdir: ~/jellyfin/

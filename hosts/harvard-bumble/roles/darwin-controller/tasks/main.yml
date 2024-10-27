@@ -1,0 +1,34 @@
+---
+- name: brew install depends
+  community.general.homebrew:
+     name:
+        - doctl
+        - ansible
+        - terraform
+        - bind
+        - just
+  delegate_to: localhost
+- name: init just for terraform
+  shell: |
+      just init
+  args:
+     chdir: digitalocean
+  delegate_to: localhost
+- name: just apply
+  shell: |
+      just apply
+  args:
+     chdir: digitalocean
+  delegate_to: localhost
+- name: just reqs
+  shell: |
+      just reqs
+  args:
+     chdir: digitalocean
+  delegate_to: localhost
+- name: just run caddy
+  shell: |
+      just run caddy
+  args:
+     chdir: digitalocean
+  delegate_to: localhost

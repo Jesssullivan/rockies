@@ -1,0 +1,2 @@
+do_token = "dop_v1_a474e8f26d3aad45f1871b44444ce8672fd29acc56331fb8c393aa985ec6e610"
+tailscale_auth_key = "tskey-auth-kuBYcqVGkF11CNTRL-ar36f11rnLQkj1JP23JrLQChMX6GPGDx"

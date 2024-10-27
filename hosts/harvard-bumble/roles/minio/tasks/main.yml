@@ -1,0 +1,41 @@
+---
+- name: stop container
+  shell: |
+      docker-compose stop
+  args:
+      chdir: ~/minio/
+  ignore_errors: yes
+- name: remove container
+  shell: |
+      docker-compose rm -y
+  args:
+     chdir: ~/minio/
+  ignore_errors: yes
+- name: install mc
+  shell: |
+      curl https://dl.min.io/client/mc/release/linux-amd64/mc --create-dirs -o $HOME/minio-binaries/mc
+      chmod +x $HOME/minio-binaries/mc
+      export PATH=$PATH:$HOME/minio-binaries/
+  args:
+     chdir: ~/minio/
+  ignore_errors: yes
+- name: Create minio directory
+  ansible.builtin.file:
+    path: ~/minio/
+    state: directory
+    mode: '0755'
+- name: copy compose file to minio/compose
+  template:
+    src: compose.yaml
+    dest: "~/minio/compose.yaml"
+- name: start container
+  shell: |
+      docker-compose up -d
+  args:
+     chdir: ~/minio/
+- name: initialize buckets
+  shell: |
+    ~/minio-binaries/mc config host add harvard-minio http://localhost:9000 AKIAIOSFODNN7EXAMPLE wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+    ~/minio-binaries/mc mb harvard-minio/drobo-s3
+    ~/minio-binaries/mc policy download myminio/drobo-s3
+    ~/minio-binaries/mc cp /mnt/drobo/A myminio/drobo-s3 --recursive

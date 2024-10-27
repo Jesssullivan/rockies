@@ -1,0 +1,10 @@
+---
+all:
+  vars:
+    remote_host: harvard-music
+    kernel_url: https://git.kernel.org/torvalds/t
+    kernel: linux-6.12-rc4.tar.gz
+    kernel_make_dir_name: linux-6.12-rc4
+    kernel_build_dir: ~/rt-kernel/
+  hosts:
+    harvard-music
