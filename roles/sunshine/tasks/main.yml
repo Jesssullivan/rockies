@@ -1,0 +1,29 @@
+---
+- name: Create sunshine config directory
+  ansible.builtin.file:
+    path: "{{ sunshine }}"
+    state: directory
+    mode: '0755'
+- name: install sunshine mgr & repo depends
+  shell: |
+#        dnf config-manager --set-enabled crb
+#        dnf install --nogpgcheck https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-$(rpm -E %rhel).noarch.rpm -y
+#        dnf install --nogpgcheck https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-$(rpm -E %rhel).noarch.rpm -y
+#        dnf in --nobest ffmpeg-free
+#        wget https://github.com/LizardByte/Sunshine/releases/download/v0.23.1/sunshine_x86_64.flatpak
+#        flatpak remote-add --if-not-exists --system flathub https://flathub.org/repo/flathub.flatpakrepo
+#        flatpak run --command=additional-install.sh dev.lizardbyte.sunshine
+  args:
+     chdir: "{{ sunshine }}"
+  become: yes
+- name: reboot the machine
+  reboot:
+    reboot_timeout: 300
+  become: true
+- name: execute one off launch
+  shell: |
+#   sudo -i PULSE_SERVER=unix:$(pactl info | awk '/Server String/{print$3}')   flatpak run dev.lizardbyte.sunshine
+  args:
+     chdir: "{{ sunshine }}"
+# this requires a screen / dummy plug to be in place.
+# this requires additional configuration.
