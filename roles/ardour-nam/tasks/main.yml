@@ -1,5 +1,5 @@
 ---
-- name: stop container
+- name: install ardour / virt depends
   shell: |
     wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
     wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
@@ -7,7 +7,7 @@
     apt install pipewire-audio-client-libraries -y
     dnf install --nogpgcheck https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E %rhel).noarch.rpm
     dnf install --nogpgcheck https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-$(rpm -E %rhel).noarch.rpm https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-$(rpm -E %rhel).noarch.rpm
-    dnf install distrobox -y                                                                                                                                                                                                  
+    dnf install distrobox -y
   become: yes
 - name: Create jellyfin directory
   ansible.builtin.file:

@@ -5,6 +5,7 @@ services:
     volumes:
       - /mnt/appdata/mediaservers/jellyfin:/config
       - /mnt/drobo:/A
+      - /home/jess/s3:/s3
     ports:
       - 2285:8096
     environment:

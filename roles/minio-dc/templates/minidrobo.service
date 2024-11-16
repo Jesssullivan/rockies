@@ -1,0 +1,12 @@
+[Unit]
+Description=minidrobo
+After=multi-user.target
+
+[Service]
+Type=simple
+User=jess
+ExecStart=/usr/bin/rclone mount minio:tests /mnt/s3 --vfs-cache-mode=full
+ExecStop=/usr/bin/umount
+Restart=on-abort
+
+[Install]

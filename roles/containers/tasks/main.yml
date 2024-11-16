@@ -8,11 +8,6 @@
     path: "{{ kernel_build_dir }}"
     state: directory
     mode: '0755'
-- name: Create rt kernel_work_dir directory
-  ansible.builtin.file:
-    path: "{{ kernel_work_dir }}"
-    state: directory
-    mode: '0755'
 - name: add elrepo key
   shell: |
       dnf -y upgrade --refresh
@@ -40,39 +35,51 @@
      chdir: "{{ kernel_build_dir }}"
 - name: exec mrproper
   shell: |
-   make  O={{ kernel_work_dir }} mrproper
+    make  O=~/build/kernel mrproper
   args:
-     chdir: "{{ kernel_build_dir }}/{{ kernel_make_dir_name }}"
+     chdir: "{{ kernel_build_dir }}{{ kernel_make_dir_name }}"
+- name: Create build directory
+  ansible.builtin.file:
+    path: "~/build/kernel/"
+    state: directory
+    mode: '0755'
 - name: copy kernel config into place
   template:
     src: config.j2
-    dest: "{{ kernel_work_dir }}.config"
+    dest: "~/build/kernel/.config"
+- name: exec mrproper
+  shell: |
+    make  O=~/build/kernel mrproper
+  args:
+     chdir: "{{ kernel_build_dir }}{{ kernel_make_dir_name }}"
 - name: add trusted keys & extraversion name
   shell: |
-    sed -ri '/CONFIG_SYSTEM_TRUSTED_KEYS/s/=.+/=""/g' {{ kernel_work_dir }}.config
-    sed  -i 's/^EXTRAVERSION.*/EXTRAVERSION = -{{ kernel_append_name }}/'  Makefile
+    sed -ri '/CONFIG_SYSTEM_TRUSTED_KEYS/s/=.+/=""/g' ~/build/kernel/.config
+    sed  -i 's/^EXTRAVERSION.*/EXTRAVERSION = -custom/'  Makefile
   args:
      chdir: "{{ kernel_build_dir }}{{ kernel_make_dir_name }}"
 - name: build kernel
   shell: |
-    make O={{ kernel_work_dir }} kernelversion
-    make -j4  O={{ kernel_work_dir }}
+    make O=~/build/kernel kernelversion
+    make -j4  O=~/build/kernel
   args:
      chdir: "{{ kernel_build_dir }}{{ kernel_make_dir_name }}"
 - name: build modules
   shell: |
-    make O={{ kernel_work_dir }} modules_install INSTALL_MOD_STRIP=1
+    make O=~/build/kernel modules_install
   args:
      chdir: "{{ kernel_build_dir }}{{ kernel_make_dir_name }}"
   become: yes
 - name: install kernel artifacts
   shell: |
-    cp {{ kernel_work_dir }}arch/x86/boot/bzImage /boot/vmlinuz-6.12.0-{{kernel_append_name}}
-    cp -v {{ kernel_work_dir }}/System.map /boot/System.map-6.12.0-{{kernel_append_name}}
+    cp /home/jess/build/kernel/arch/x86/boot/bzImage /boot/vmlinuz-6.12.0-custom
+   cp -v  ~/build/kernel/System.map /boot/System.map-6.12.0-custom
+  args:
+     chdir: "{{ kernel_build_dir }}{{ kernel_make_dir_name }}"
   become: yes
 - name: execute kernel-install add
   shell: |
-    kernel-install add 6.12.0-{{kernel_append_name}} /boot/vmlinuz-6.12.0-{{kernel_append_name}}
+    kernel-install add 6.12.0-custom /boot/vmlinuz-6.12.0-custom
   args:
      chdir: "{{ kernel_build_dir }}{{ kernel_make_dir_name }}"
   become: yes

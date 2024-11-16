@@ -1,7 +1,7 @@
 ---
 - hosts: all
   roles:
-    - role: minio
+    - role: minio-dc
 
 
 

@@ -1,13 +1,13 @@
 ---
 - name: stop container
   shell: |
-      docker-compose stop
+      docker compose stop
   args:
       chdir: ~/minio/
   ignore_errors: yes
 - name: remove container
   shell: |
-      docker-compose rm -y
+      docker compose rm -y
   args:
      chdir: ~/minio/
   ignore_errors: yes
@@ -19,6 +19,24 @@
   args:
      chdir: ~/minio/
   ignore_errors: yes
+- name: Ensure group miniproc exists with set gid
+  ansible.builtin.group:
+    name: minio
+    state: present
+    gid: 473
+  become: yes
+- name: Ensure miniproc user exists with set uid & gid
+  ansible.builtin.user:
+    name: minio
+    comment: minio
+    uid: 473
+    group: 473
+  become: yes
+- name: setup ownership
+  shell: |
+      chown -R miniproc:miniproc /mnt/drobo/minio
+  ignore_errors: yes
+  become: yes
 - name: Create minio directory
   ansible.builtin.file:
     path: ~/minio/
@@ -28,11 +46,11 @@
   template:
     src: compose.yaml
     dest: "~/minio/compose.yaml"
-#- name: start container
-#  shell: |
-#      docker-compose up -d --remove-orphans
-#  args:
-#     chdir: ~/minio/
+- name: start container
+  shell: |
+      docker compose up -d --remove-orphans
+  args:
+     chdir: ~/minio/
 #- name: initialize buckets
 #  shell: |
 ##    ~/minio-binaries/mc config host add harvard-minio http://localhost:9000 AKIAIOSFODNN7EXAMPLE wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY

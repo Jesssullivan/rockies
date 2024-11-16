@@ -1,0 +1,7 @@
+---
+- hosts: sovol-hutch
+  roles:
+    - role: danger-klipper
+
+
+

@@ -1,0 +1,8 @@
+---
+sovol-hutch:
+  vars:
+    remote_host: sovol-hutch
+    danger_work_dir: /home/jess/
+    prind_dir: printd
+  hosts:
+    sovol-hutch
