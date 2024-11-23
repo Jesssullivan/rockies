@@ -1,0 +1,8 @@
+address: 0.0.0.0:7373 # Listen on all network interfaces on port 7373
+
+admin:
+  identity: 3e826e39b3d854af954166732a6fb3218c57e44d39880fe20d71338a1e444997 # The client.crt identity
+
+tls:
+  key: private.key    # The KES server TLS private key
+  cert: public.crt    # The KES server TLS certificate

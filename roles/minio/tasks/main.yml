@@ -1,41 +1,52 @@
 ---
-- name: stop container
-  shell: |
-      docker-compose stop
-  args:
-      chdir: ~/minio/
-  ignore_errors: yes
-- name: remove container
-  shell: |
-      docker-compose rm -y
-  args:
-     chdir: ~/minio/
-  ignore_errors: yes
-- name: install mc
-  shell: |
-      curl https://dl.min.io/client/mc/release/linux-amd64/mc --create-dirs -o $HOME/minio-binaries/mc
-      chmod +x $HOME/minio-binaries/mc
-      export PATH=$PATH:$HOME/minio-binaries/
-  args:
-     chdir: ~/minio/
-  ignore_errors: yes
-- name: Create minio directory
+- name: Create minio direct directory
   ansible.builtin.file:
-    path: ~/minio/
+    path: ~/minio-linux/
     state: directory
     mode: '0755'
-- name: copy compose file to minio/compose
+- name: fetch and install minio rpm
+  shell: |
+    wget https://dl.min.io/server/minio/release/linux-amd64/archive/minio-20241107005220.0.0-1.x86_64.rpm -O minio.rpm
+    dnf -y install minio.rpm
+  args:
+     chdir: /home/{{uname}}/minio-linux/
+  become: yes
+- name: setup minio users and stuff
+  shell: |
+    groupadd -r minio-user
+    useradd -M -r -g minio-user minio-user
+    chown minio-user:minio-user /mnt/drobo
+  become: yes
+  args:
+     chdir: /home/{{uname}}/minio-linux/
+- name: copy service file into place
   template:
-    src: compose.yaml
-    dest: "~/minio/compose.yaml"
-#- name: start container
-#  shell: |
-#      docker-compose up -d --remove-orphans
-#  args:
-#     chdir: ~/minio/
-#- name: initialize buckets
-#  shell: |
-##    ~/minio-binaries/mc config host add harvard-minio http://localhost:9000 AKIAIOSFODNN7EXAMPLE wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-##    ~/minio-binaries/mc mb harvard-minio/test-2
-##    ~/minio-binaries/mc policy download harvard-minio/test-2
-##    ~/minio-binaries/mc cp /mnt/drobo/A/video/Movies/ harvard-minio/test-2 --recursive
+    src: minio.service.j2
+    dest: "/usr/lib/systemd/system/minio.service"
+  args:
+     chdir: /home/{{uname}}/minio-linux/
+  become: yes
+- name: copy env file into place
+  template:
+    src: minio.j2
+    dest: "/etc/default/minio"
+  args:
+     chdir: /home/{{uname}}/minio-linux/
+  become: yes
+- name: fetch and add kes binary
+  shell: |
+    wget https://github.com/minio/kes/releases/latest/download/kes-linux-amd64 -O kes
+    chmod +x kes
+    export PATH=$PATH:@HOME/minio-linux/kes
+  args:
+     chdir: /home/{{uname}}/minio-linux/kes
+  become: yes
+- name: fetch and add kes binary
+  shell: |
+    minio-linux/kes identity new --ip "127.0.0.1" --key "private.key" --cert "public.crt" localhost
+    minio-linux/kes identity new --key=client.key --cert=client.crt HarvardMinio
+    setcap cap_ipc_lock=+ep $(readlink -f $(which kes))
+
+  args:
+     chdir: /home/{{uname}}/minio-linux/kes
+  become: yes

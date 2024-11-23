@@ -12,4 +12,8 @@ caddy_endpoints:
     upstream: "harvard-music:2285"
     tls_insecure: false
     tls_provider: cloudflare
-
+  - friendly_name: search
+    fqdn: search.xoxd.me
+    upstream: "harvard-music:8888"
+    tls_insecure: false
+    tls_provider: cloudflare

@@ -1,0 +1,11 @@
+---
+- hosts: all
+  vars_prompt:
+  - name: gitops_token
+    prompt: "Provide your gitops token"
+    private: yes
+  - name: server_secret_key
+    prompt: "Provide your server secret key"
+    private: yes
+  roles:
+    - role: search

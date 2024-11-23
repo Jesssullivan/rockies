@@ -5,8 +5,8 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - /mnt/drobo/minio:/minio
+      - /mnt/drobo:/minio
     environment:
       - "MINIO_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE"
       - "MINIO_SECRET_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-    command: server /minio --console-address ":9001"
+    command: server /mnt/drobo --console-address ":9001"

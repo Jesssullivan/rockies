@@ -1,0 +1,3 @@
+[submodule "minio-kms-trino"]
+	path = minio-kms-trino
+	url = https://github.com/Jesssullivan/minio-kms-trino
