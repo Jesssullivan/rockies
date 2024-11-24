@@ -9,17 +9,3 @@
     dnf install --nogpgcheck https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-$(rpm -E %rhel).noarch.rpm https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-$(rpm -E %rhel).noarch.rpm
     dnf install distrobox -y
   become: yes
-- name: Create jellyfin directory
-  ansible.builtin.file:
-    path: ~/jellyfin/
-    state: directory
-    mode: '0755'
-- name: copy compose file to jellyfin/compose
-  template:
-    src: compose.yaml
-    dest: "~/jellyfin/compose.yaml"
-- name: start container
-  shell: |
-      docker-compose up -d
-  args:
-     chdir: ~/jellyfin/

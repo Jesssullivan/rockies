@@ -13,7 +13,7 @@ caddy_endpoints:
     tls_insecure: false
     tls_provider: cloudflare
   - friendly_name: search
-    fqdn: search.xoxd.me
-    upstream: "harvard-music:8888"
+    fqdn: search.hewow.gay
+    upstream: "harvard-music:8080"
     tls_insecure: false
     tls_provider: cloudflare

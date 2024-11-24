@@ -1,7 +1,4 @@
 ---
 - hosts: all
   roles:
-    - role: minio-cd
-
-
-
+    - role: search-docker
