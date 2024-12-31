@@ -1,0 +1,22 @@
+---
+
+- name: install lots of stuff for kate 
+  shell: |
+    add-apt-repository -y ppa:phoerious/keepassxc 
+    add-apt-repository -y  ppa:libreoffice/ppa
+    apt update
+    sudo apt upgrade -y 
+    mv /etc/apt/preferences.d/nosnap.pref ~/Documents/nosnap.backup
+    apt install -y keepassxc snapd libreoffice
+    wget -O- https://updates.signal.org/desktop/apt/keys.asc | gpg --dearmor > signal-desktop-keyring.gpg
+    cat signal-desktop-keyring.gpg | tee /usr/share/keyrings/signal-desktop-keyring.gpg > /dev/null
+    echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main' |\
+    tee /etc/apt/sources.list.d/signal-xenial.list
+    snap install discord spotify
+    apt install -y hunspell-en-us hyphen-en-us mythes-en-us libreoffice-help-en-us xrdp xorgxrdp 
+
+    apt update && sudo apt install signal-desktop
+  become: yes
+
+
+

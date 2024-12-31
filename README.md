@@ -40,6 +40,3 @@ sudo tailscale up -ssh
 
 - - -
 
-### todos:
-
-- [ ] add search repo and container build as submodule, currently this is seperate (called in docker-compose, loads from local registery)

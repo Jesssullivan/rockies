@@ -1,0 +1,111 @@
+---
+- name: install searxng depends
+  shell: |
+      dnf install -y python python-pip python-lxml python-babel python3-devel \
+      uwsgi uwsgi-plugin-python3 \
+      git libxml2 openssl
+  become: yes
+- name: Add searxng system user
+  user:
+    name: searxng
+    shell: /bin/bash
+    system: yes
+    home: /usr/local/searxng
+    comment: "Privacy-respecting metasearch engine"
+  become: yes
+- name: Create home directory for searxng
+  file:
+    path: /usr/local/searxng
+    state: directory
+    owner: searxng
+    group: searxng
+    mode: '0755'
+  become: yes
+- name: Create etc directory for searxng
+  file:
+    path: /etc/searxng/
+    state: directory
+    owner: searxng
+    group: searxng
+    mode: '0755'
+  become: yes
+- name: Check if source tree exists
+  stat:
+    path: "/usr/local/searxng/searxng-src/.git"
+  register: stat_searxng_tree
+- name: clone jess's searxng
+  become_user: searxng
+  shell: |
+      git clone https://jesssullivan:{{gitops_token}}@github.com/jesssullivan/searxng.git /usr/local/searxng/searxng-src
+  args:
+    chdir: /usr/local/searxng/
+  become: yes
+  when: not stat_searxng_tree.stat.exists
+- name: update jess's searxng repo if we've already cloned here
+  become_user: searxng
+  shell: |
+    git remote set-url origin https://jesssullivan:{{gitops_token}}@github.com/jesssullivan/searxng-src
+    git pull || true
+  args:
+    chdir: /usr/local/searxng/searxng-src
+  become: yes
+  when: stat_searxng_tree.stat.exists
+- name: Create Python virtual environment
+  command: python3 -m venv /usr/local/searxng/searx-pyenv
+  become: yes
+  become_user: searxng
+- name: Add venv activation to .profile
+  lineinfile:
+    path: /usr/local/searxng/.profile
+    line: '. /usr/local/searxng/searx-pyenv/bin/activate'
+    create: yes
+  become: yes
+  become_user: searxng
+- name: Check if Python is installed
+  command: command -v python
+  register: python_check
+  ignore_errors: yes
+- name: Get Python version
+  command: python --version
+  when: python_check.rc == 0
+  register: python_version
+- name: Ensure correct Python binary
+  set_fact:
+    python_bin: /usr/local/searxng/searx-pyenv/bin/python
+- name: Upgrade pip
+  shell: |
+      {{ python_bin }} -m pip install -U pip
+  become: yes
+  become_user: searxng
+- name: Upgrade setuptools
+  shell: |
+      {{ python_bin }} -m pip install -U setuptools
+  become: yes
+  become_user: searxng
+- name: Upgrade wheel
+  shell: |
+    {{ python_bin }} -m pip install -U wheel
+  become: yes
+  become_user: searxng
+- name: Upgrade pyyaml
+  shell: |
+     {{ python_bin }} -m pip install -U pyyaml
+  become: yes
+  become_user: searxng
+- name: Change to SearXNG's working tree and install SearXNG into virtualenv
+  become: yes
+  become_user: searxng
+  shell: |
+    /usr/local/searxng/searx-pyenv/bin/pip install --use-pep517 --no-build-isolation -e .
+  args:
+     chdir: /usr/local/searxng/searxng-src
+- name: copy settings to host
+  template:
+    src: settings
+    dest: /etc/searxng/settings.yml
+    owner: searxng
+    group: searxng
+    mode: '0644'
+    backup: yes
+  become: yes
+  become_user: searxng

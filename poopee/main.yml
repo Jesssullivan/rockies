@@ -1,0 +1,6 @@
+---
+poopee:
+  vars:
+    uname: jsullivan2
+  hosts:
+    poopee

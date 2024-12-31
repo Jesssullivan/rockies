@@ -1,0 +1,7 @@
+---
+kate-vm-demo:
+  vars:
+    remote_host: kate-vm-demo
+    uname: jess
+  hosts:
+    kate-vm-demo

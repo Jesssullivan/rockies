@@ -1,0 +1,21 @@
+---
+branch: master
+reset: true 
+tummy_dir: /mnt/drobo-full
+tummy_active_dir_name: tumtum_live
+
+tummy_access_key_jess: 
+tummy_secret_key_jess: 
+tummy_access_key_kate: 
+tummy_secret_key_kate: 
+tummy_access_key_friends: 
+tummy_secret_key_friends: 
+
+tummy_access_key_public: 
+tummy_secret_key_public: 
+
+tummy_rclone_password1: 
+tummy_rclone_password2: 
+
+drobo_UUID: 
+uname: jsullivan2

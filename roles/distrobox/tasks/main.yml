@@ -1,0 +1,22 @@
+---
+- name: Create distrobox work directory
+  ansible.builtin.file:
+    path: ~/distrobox/
+    state: directory
+    mode: '0755'
+- name: install distrobox
+  shell: |
+      curl -s https://raw.githubusercontent.com/89luca89/distrobox/main/install | sudo sh
+  become: yes
+- name: Create distrobox home dir
+  ansible.builtin.file:
+    path: "/var/hosts/{{default_image_name}}"
+    state: directory
+    owner: "{{uname}}"
+    mode: '0755'
+  become: yes
+- name: create image
+  shell: |
+      /usr/local/bin/distrobox create --image ubuntu:22.04 \
+        --name {{default_image_name}} \
+        --home /var/hosts/{{default_image_name}} -Y

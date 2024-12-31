@@ -1,0 +1,140 @@
+---
+- name: Create seaweed work directory
+  ansible.builtin.file:
+    path: ~/seaweed/
+    state: directory
+    mode: '0755'
+    
+- name: Ensure tummy dir exists
+  ansible.builtin.file:
+    path: "{{ tummy_dir }}"
+    state: directory
+    mode: '0755'
+  become: true
+  
+- name: Ensure tummy arch dir exists
+  ansible.builtin.file:
+    path: "{{ tummy_dir }}/arch"
+    state: directory
+    mode: '0755'
+  become: true
+  
+## read state of fstab:
+- name: Check whether drobo uuid is present
+  ansible.builtin.command: grep -c "UUID={{ drobo_UUID }}" /etc/fstab
+  register: uuid_present
+  ignore_errors: true
+  become: true
+  
+- name: update fstab if needed 
+  ansible.builtin.blockinfile:
+    dest: /etc/fstab
+    block: |
+      UUID={{ drobo_UUID }} {{ tummy_dir }}  xfs  auto,nofail,noatime,rw,user  0  0
+  become: true
+  when: uuid_present.stdout == "0"
+  
+- name: Insert empty line before the marker in fstab if needed
+  ansible.builtin.lineinfile:
+    dest: /etc/fstab
+    insertbefore: ^# END ANSIBLE MANAGED BLOCK$
+    line: ""
+  become: true
+  when: uuid_present.stdout == "0"
+  
+- name: reboot the machine
+  reboot:
+    reboot_timeout: 300
+  become: true
+  when: uuid_present.stdout == "0"
+
+- name: Check if tummy dir exists
+  stat:
+    path: "{{ tummy_dir }}/{{ tummy_active_dir_name }}"
+  register: stat_result_tummy_dir
+  become: yes
+  
+- name: if tummy dir exists, move it to arch is reset is specified
+  shell: |
+     rm -rf "{{ tummy_dir }}/arch/"
+     mv "{{ tummy_dir }}/{{ tummy_active_dir_name }}" "{{ tummy_dir }}/arch/" 
+  become: true
+  when: stat_result_tummy_dir.stat.exists and reset | default(true) | bool
+  
+- name: Create drobo directory
+  ansible.builtin.file:
+    path: "{{ tummy_dir }}/{{ tummy_active_dir_name }}"
+    state: directory
+    mode: '0755'
+  when: not stat_result_tummy_dir.stat.exists 
+  
+- name: ensure docker compose is installed
+  shell: |
+      sudo dnf -y install docker-ce docker-ce-cli containerd.io
+      sudo systemctl start docker
+      sudo dnf -y config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+      sudo dnf -y install docker-compose-plugin git
+      sudo groupadd docker || true
+      sudo usermod -aG docker $USER
+
+  args:
+     chdir: /home/{{uname}}/seaweed/
+  become: yes
+  
+- name: stop container
+  shell: |
+      docker compose stop
+  args:
+      chdir: ~/seaweed/
+  ignore_errors: yes
+  
+- name: stop container
+  shell: |
+      docker compose rm -f
+  args:
+      chdir: ~/seaweed/
+  ignore_errors: yes
+  
+- name: copy compose file to seaweed
+  template:
+    src: compose.yaml.j2
+    dest: "~/seaweed/compose.yaml"
+    
+- name: start container
+  shell: |
+      docker compose up -d --remove-orphans
+  args:
+     chdir: ~/seaweed/
+
+- name: install rclone 
+  shell: |
+    dnf install -y unzip 
+    curl https://rclone.org/install.sh | bash
+  become: yes
+  ignore_errors: true
+  
+- name: make rclone config directory
+  shell: |
+     mkdir -p ~/.config/rclone/
+
+- name: copy rclone file
+  template:
+    src: rclone_blocks.conf.j2
+    dest: "~/.config/rclone/rclone.conf"
+    
+- name: ensure crypt bucket exists
+  shell: |
+    rclone mkdir tummy_blocks:tummycrypt
+    rclone mkdir tummy_blocks:tummyexposed
+    rclone mkdir tummy_blocks:tummypubis
+    
+- name: copy rclone friends config
+  template:
+    src: rclone_friends.conf.j2
+    dest: "~/.config/rclone/rclone_friends.conf"
+    
+- name: copy rclone kate config
+  template:
+    src: rclone_kate.conf.j2
+    dest: "~/.config/rclone/rclone_kate.conf"
+    

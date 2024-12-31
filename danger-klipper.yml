@@ -1,7 +1,5 @@
 ---
-- hosts: sovol-hutch
+- hosts: all
   roles:
+#    - role: distrobox
     - role: danger-klipper
-
-
-

@@ -1,0 +1,15 @@
+---
+home-vm:
+  vars:
+    remote_host: harvard-music
+    kernel_url: https://git.kernel.org/torvalds/t
+    kernel: linux-6.12-rc6.tar.gz
+    kernel_make_dir_name: linux-6.12-rc6
+    kernel_append_name: rockies-rc6
+    kernel_work_dir: /home/jess/build/kernel/
+    kernel_build_dir: /home/jess/rt-kernel/
+    search_work_dir: /home/jess/search/
+    sunshine_dir: ~/sunshine/
+    uname: jess
+  hosts:
+    home-vm

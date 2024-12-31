@@ -1,4 +1,7 @@
 
+
+https://www.reddit.com/r/Reaper/comments/13m0wzb/running_browser_audio_thru_reaper/
+
 ### Kernel notes:
 - Based on linux kernel 6.12 canidate rc6; includes a number of low latency modifications from the realtime kernel patch set.
 - includes kernel level ntfs support  for maximal support with fuse.  This supports the continued life of our drobo DAS.  This is mounted using fuse ntfs 3g, ontop of which we run a minio s3 object storage service.
